@@ -5,126 +5,75 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import random.design;
 
-//余弦夹角测相似度
+
 public class step5 {
 	//1--28个指标的权重
-	double[] weight = {0.100,0.205,0.020,0.020,0.022,0.078,0.117,0.185,0.039,0.042,0.046,0.389,0.107,0.071,0.292,0.286,0.155,0.080,0.128,0.063,0.307,0.607,0.098,0.019,0.019,0.018,0.018,0.087};
-	
-	/*
-	public List<List<Double>> getPow() throws ClassNotFoundException, SQLException{
+    //double[] weight = {0.100,0.205,0.020,0.020,0.022,0.078,0.117,0.185,0.039,0.042,0.046,0.389,0.107,0.071,0.292,0.286,0.155,0.080,0.128,0.063,0.307,0.607,0.098,0.019,0.019,0.018,0.018,0.087};
+	//读取数据库
+	public List<List<Double>> getDATA() throws ClassNotFoundException, SQLException{
 		List<List<Double>> lld = new ArrayList<List<Double>>();
 		List<Double> list = new ArrayList<Double>();
 		Connection con = design.connectDatabase();
 		Statement sm = con.createStatement();
-		ResultSet rs = sm.executeQuery(" SELECT * FROM 2013_pow");
+		ResultSet rs = sm.executeQuery(" SELECT * FROM rechigu" );
 		while(rs.next()){
 			list.add(rs.getDouble("A"));
-		    list.add(rs.getDouble("D"));
-		   	list.add(rs.getDouble("G"));
-		   	list.add(rs.getDouble("J"));
-		   	list.add(rs.getDouble("M"));
-	    	list.add(rs.getDouble("P"));
-	    	list.add(rs.getDouble("S"));
-		   	list.add(rs.getDouble("V"));
-		   	list.add(rs.getDouble("Y"));
-	    	list.add(rs.getDouble("AB"));
-	    	list.add(rs.getDouble("AE"));
-		   	list.add(rs.getDouble("AH"));
-		   	list.add(rs.getDouble("AK"));
-		   	list.add(rs.getDouble("AN"));
-		   	list.add(rs.getDouble("AQ"));
-	    	list.add(rs.getDouble("AT"));
-	    	list.add(rs.getDouble("AW"));
-		   	list.add(rs.getDouble("AZ"));
-		   	list.add(rs.getDouble("BC"));
-	    	list.add(rs.getDouble("BF"));
-		   	list.add(rs.getDouble("BI"));
-	    	list.add(rs.getDouble("BL"));
-		   	list.add(rs.getDouble("BO"));
-		   	list.add(rs.getDouble("BR"));
-		   	list.add(rs.getDouble("BW"));
-		   	list.add(rs.getDouble("BZ"));
-	    	list.add(rs.getDouble("CC"));
-	    	list.add(rs.getDouble("CE"));
-		    	
-		   	lld.add(list);
-		   	list = new ArrayList<Double>();
-		 }
+			list.add(rs.getDouble("B"));
+			list.add(rs.getDouble("C"));
+			list.add(rs.getDouble("D"));
+			list.add(rs.getDouble("E"));
+
+			lld.add(list);
+			list = new ArrayList<Double>();
+		}
+		con.close();
 		return lld;
 	}
-	*/
-	
-	/*
-	public List<Double> Mould(List<List<Double>> lld){
-		List<Double> lista = new ArrayList();
-		double mould = 0;
-		for(int i=0;i<lld.size();i++){
-			for(int j=0;j<lld.get(0).size();j++){
-				mould += lld.get(i).get(j);
-			}
-			mould = Math.sqrt(mould);
-			lista.add(mould);
-			mould = 0;
-		}
-		return lista;
-	}
-	*/
-	
-	/*
-	public List<List<Double>> newList(List<List<Double>> lld,List<Double> ld){
-		List<Double> list1 = new ArrayList();
-		List<List<Double>> list2 = new ArrayList();
-		double val = 0;
-		for(int i=0;i<2923;i++){
-			for(int j=0;j<28;j++){
-				val = lld.get(i).get(j)/ld.get(i);
-				list1.add(val);
-			}
-			list2.add(list1);
-			list1 = new ArrayList();
-		}
-		return list2;
-	}
-	*/
-	/*
-    public List<Map> yuxianCountSim(List<List<Double>> lldde,List<Double> ld){
-		
-		 List<Map> lldee = new ArrayList<>();
+	//余弦夹角测相似度
+    public List<Map> yuxianCountSim(List<List<Double>> lldde){
+		 List<Map> lm = new ArrayList<>();
 	 	 Map<Integer, Double> map = new TreeMap<Integer, Double>();
-		 double sum=0;
-	     double sim=0;
-	  
+		 double sum = 0;
+		 double mSum = 0;
+		 double tSum = 0;
+	     double sim = 0;
 	     for(int m=0;m<lldde.size();m++){
 	 	    for(int t=0;t<lldde.size();t++){
+//	 	    	if (t == m){
+//	 	    		map.put(t,2.0);
+//	 	    		continue;
+//				}
 	    	    for(int n=0;n<lldde.get(0).size();n++){
-			        sum = sum + lldde.get(m).get(n)*lldde.get(t).get(n)*weight[n];		
+	    	    	//if (lldde.get(m).get(n)!=0&&lldde.get(t).get(n)!=0) {  //取共同指标计算
+						sum += lldde.get(m).get(n) * lldde.get(t).get(n);
+						mSum += Math.pow(lldde.get(m).get(n),2);
+						tSum += Math.pow(lldde.get(t).get(n),2);
+					//}
 			    }
-	    	   // Map<Integer, Double> map = new TreeMap<Integer, Double>();
-	    	    sim = sum/(ld.get(m)*ld.get(t));
+			    if (mSum==0||tSum==0){
+	    	    	sim = 0;
+				}else {
+					sim = sum / (Math.sqrt(mSum) * Math.sqrt(tSum));
+				}
 			    map.put(t, sim);
-		   	    sum=0;	  
+		   	    sum = 0;
+		   	    mSum = 0;
+		   	    tSum = 0;
 		    }
 	 	   Map<Integer,Double> sortMap = sortMap(map);
 	 	   Map<Integer,Double> nmap = getten(sortMap);
-		   lldee.add(nmap);
+		   lm.add(nmap);
 		   
 	    }
 	     //System.out.println(lldee.toString());  
-		 return lldee;
+		 return lm;
 	}
-	*/
-	
+
+
 	//改进的余弦相似度,实质上就是皮尔逊相关系数
 	 public List<Map> NyuxianCountSim(List<List<Double>> lldde){
 		 List<Double> list = new ArrayList();
@@ -133,12 +82,12 @@ public class step5 {
 			 for(int j=0;j<lldde.get(0).size();j++){
 				 averager = averager + lldde.get(i).get(j);
 			 }
-			 averager = averager/28;
+			 averager = averager/lldde.get(0).size();
 			 list.add(averager);
 			 averager = 0;
 		 }		 
 		 List<Map> lm = new ArrayList<>();
-	 	 Map<Integer, Double> map = new TreeMap<Integer, Double>();
+	 	 Map<Integer, Double> map = new HashMap<Integer, Double>();
 		 double sum1=0;
 		 double sum2=0;
 		 double sum3=0;
@@ -146,13 +95,23 @@ public class step5 {
 	  
 	     for(int m=0;m<lldde.size();m++){
 	 	    for(int t=0;t<lldde.size();t++){
+//	 	    	if (m == t){
+//	 	    		map.put(t,2.0);
+//	 	    		continue;
+//				}
 	    	    for(int n=0;n<lldde.get(0).size();n++){
-			        sum1 = sum1 + (lldde.get(m).get(n)-list.get(m))*(lldde.get(t).get(n)-list.get(t));
-			        sum2 = sum2 + Math.pow(lldde.get(m).get(n)-list.get(m), 2);
-			        sum3 = sum3 + Math.pow(lldde.get(t).get(n)-list.get(t), 2);
+					//if (lldde.get(m).get(n)!=0&&lldde.get(t).get(n)!=0) {
+						sum1 += (lldde.get(m).get(n) - list.get(m)) * (lldde.get(t).get(n) - list.get(t));
+						sum2 += Math.pow(lldde.get(m).get(n) - list.get(m), 2);
+						sum3 += Math.pow(lldde.get(t).get(n) - list.get(t), 2);
+					//}
 			    }
-	    	   // Map<Integer, Double> map = new TreeMap<Integer, Double>();
-	    	    sim = sum1/(Math.sqrt(sum2)*Math.sqrt(sum3));
+
+				if (sum2==0||sum3==0){
+					sim = 0;
+				}else {
+					sim = sum1 / (Math.sqrt(sum2) * Math.sqrt(sum3));
+				}
 			    map.put(t, sim);
 		   	    sum1=0;
 		   	    sum2=0;	
@@ -166,7 +125,44 @@ public class step5 {
 	     //System.out.println(lldee.toString());  
 		 return lm;
 	}
-	
+
+	//欧式距离
+	public List<Map> oushiCountSim(List<List<Double>> lldde){
+		int count=0;
+		List<Map> lm = new ArrayList<>();
+		Map<Integer, Double> map = new HashMap<>();
+		double sum=0;
+		double sim=0;
+		for(int m=0;m<lldde.size();m++){
+			for(int t=0;t<lldde.size();t++){
+//				if (m == t){
+//					map.put(t,2.0);
+//					continue;
+//				}
+				for(int n=0;n<lldde.get(0).size();n++){
+					//if (lldde.get(m).get(n)!=0&&lldde.get(t).get(n)!=0) {
+					sum += Math.pow(lldde.get(m).get(n) - lldde.get(t).get(n), 2);
+					//}
+				}
+				// Map<Integer, Double> map = new TreeMap<Integer, Double>();
+				sum =  Math.sqrt(sum);
+//				if (sum == 0){
+//					sim = 0;
+//				}else {
+				sim = 1 / (1 + sum);
+				//}
+				map.put(t, sim);
+				sum=0;
+			}
+			Map<Integer,Double> sortMap = sortMap(map);
+			Map<Integer,Double> nmap = getten(sortMap);
+			lm.add(nmap);
+
+		}
+		//System.out.println(lldee.toString());
+		return lm;
+	}
+
     public  Map<Integer, Double> sortMap(Map<Integer, Double> oriMap) {
         if (oriMap == null || oriMap.isEmpty()) {
             return null;
@@ -193,7 +189,7 @@ public class step5 {
     	Set set = mp.keySet();
     	Iterator it = set.iterator();
     	int a=0;
-    	while (it.hasNext()&&a<11) {
+    	while (it.hasNext() && a < 11) {
             int key = (int) it.next(); 
             double value = (double) mp.get(key);
             map.put(key, value); 
@@ -206,7 +202,7 @@ public class step5 {
     //导入相似度
 	public void LeadingSim(List<Map> lm) throws ClassNotFoundException, SQLException{
 		Connection co3 =  design.connectDatabase(); 
-		String insert = "INSERT 2013sim(A,B,sim) VALUES(?,?,?)";
+		String insert = "INSERT part6 (A,B,sim) VALUES(?,?,?)";
 		//List<String> ss = getName();
 		int count=0;
     	int k=0;
@@ -222,7 +218,7 @@ public class step5 {
 			    ps.setInt(2, key+1 );
 			    ps.setDouble(3, value);
 			    count++;
-			    ps.addBatch(); 
+			    ps.addBatch();
 			}
 			    
 			if(count%10000==0){
@@ -240,13 +236,15 @@ public class step5 {
 	}
 	
     public static void main(String[] args) throws ClassNotFoundException, SQLException{
-    	step4 four = new step4();
     	step5 five = new step5();
+    	step4 four = new step4();
     	List<List<Double>> list1 = four.getDATA();
-    	//List<List<Double>> list3 = five.newList(list1, list2);
-    	List<Map> list4 = five.NyuxianCountSim(list1);
-    	five.LeadingSim(list4);
-    	//List<Map> lm = five.newCountSim(list3);
-    	//five.newLeadingSim(lm);
+		//System.out.print(list1.size());
+    	//List<Map> yuxian = five.yuxianCountSim(list1);
+		//List<Map> oushi = five.oushiCountSim(list1);
+	    List<Map> pierxun = five.NyuxianCountSim(list1);
+    	five.LeadingSim(pierxun);
+		//five.LeadingSim(oushi);
+		//five.LeadingSim(yuxian);
     }
 }

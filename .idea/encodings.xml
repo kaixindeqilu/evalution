@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" defaultCharsetForPropertiesFiles="GBK">
+    <file url="file://$PROJECT_DIR$/src/cluster/main.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/cluster/step1.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/cluster/step3.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/cluster/step5.java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/cluster/step6.java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/cluster/step7.java" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/src/cluster/step8.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/random/design.java" charset="GBK" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

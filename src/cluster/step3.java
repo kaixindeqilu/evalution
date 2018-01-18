@@ -1,65 +1,128 @@
 package cluster;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import random.design;
 
+import java.sql.*;
+import java.util.*;
+
+//为指标值分配整型值
 public class step3{
-	double[] ones = {0.0896,0.0701,0.1658,0.0346,0.0631,0.2556,0.0715,0.0775};
-	double[] twos = {0.1151,0.0112,0.0110,0.0124,0.0658,0.2180,0.1637,0.0866,0.0717,0.0353,0.1721,0.3402,0.0547,0.0106,0.0104,0.0103,0.0103};
-	double[] threes = {0.0978,0.1065,0.2497};
-	double[] cones = {0.0896,0.0701,0.1658,0.0346,0.0631,0.2556,0.0715,0.0775};;
-	double[] ctwos = {0.1151,0.0112,0.0110,0.0124,0.0658,0.2180,0.1637,0.0866,0.0717,0.0353,0.1721,0.3402,0.0547,0.0106,0.0104,0.0103,0.0103};;
-	double[] cthrees ={0.0978,0.1065,0.2497}; ;
-	List<double[]>list = new ArrayList();
-	public List<List<Double>> disRate(){
-		
-		double[] maxDis = new double[3];
-		list.add(ones);
-		list.add(twos);
-		list.add(threes);
-		for(int i=0;i<3;i++){
-			Arrays.sort(list.get(i));
-			//测试排序后数组输出
-//			for(int j=0;j<list.get(i).length;j++){
-//			    System.out.println(list.get(i)[j]);
-//			}
-			maxDis[i] = list.get(i)[list.get(i).length-1];
-		}
-		
-		
-		//测试最大值输出
-		for(double x:maxDis){
-			System.out.print(x+"    ");
-		}
-		
-		List<Double> list1 = new ArrayList();
+	public Map<Integer,Double> newList() throws SQLException, ClassNotFoundException {
+		List<Integer> list1 = new ArrayList();
 		List<Double> list2 = new ArrayList();
-		List<Double> list3 = new ArrayList();
-		for(int i=0;i<cones.length;i++){
-			list1.add((cones[i]/maxDis[0])*(8.0/28.0));
+		Map<Integer,Double> map = new HashMap<>();
+		Connection con = design.connectDatabase();
+		Statement sm = con.createStatement();
+		ResultSet rs = sm.executeQuery(" SELECT id,e FROM logall order by e" );
+		while (rs.next()){
+			map.put(rs.getInt("id"),rs.getDouble("e"));
 		}
-		for(int i=0;i<ctwos.length;i++){
-			list2.add((ctwos[i]/maxDis[1])*(17.0/28.0));
-		}
-		for(int i=0;i<cthrees.length;i++){
-			list3.add((cthrees[i]/maxDis[2])*(3.0/28.0));
-		}
-		List<List<Double>> listt = new ArrayList();
-		listt.add(list1);
-		listt.add(list2);
-		listt.add(list3);
-		
-		return listt;
+		con.close();
+		return map;
 	}
-	
-	public static void main(String[] args){
-		step3 three = new step3();
-		List<List<Double>> listt = three.disRate();
-		//结果输出
-		for(int i=0;i<3;i++){
-		   System.out.println(listt.get(i).toString());
+	public  Map<Integer, Double> sortMap(Map<Integer, Double> oriMap) {
+		if (oriMap == null || oriMap.isEmpty()) {
+			return null;
 		}
+		Map<Integer, Double> sortedMap = new LinkedHashMap<Integer, Double>();
+		List<Map.Entry<Integer, Double>> entryList = new ArrayList<Map.Entry<Integer, Double>>(
+				oriMap.entrySet());
+		Collections.sort(entryList, new MapValueComparator());
+
+		Iterator<Map.Entry<Integer, Double>> iter = entryList.iterator();
+		Map.Entry<Integer, Double> tmpEntry = null;
+		while (iter.hasNext()) {
+			tmpEntry = iter.next();
+			sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
+		}
+		return sortedMap;
+	}
+    public Map<Integer,Double> intMap(Map<Integer,Double> doubleMap){
+		int len = doubleMap.size();
+		System.out.print(len);
+		int i = 0;
+		Iterator<Map.Entry<Integer, Double>> iter = doubleMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<Integer,Double > entry = iter.next();
+			if (i <= len / 10 * 1) {
+				doubleMap.put(entry.getKey(), 1.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 1 < i && i <= len / 10 * 2) {
+				doubleMap.put(entry.getKey(), 2.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 2 < i && i <= len / 10 * 3) {
+				doubleMap.put(entry.getKey(), 3.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 3 < i && i <= len / 10 * 4) {
+				doubleMap.put(entry.getKey(), 4.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 4 < i && i <= len / 10 * 5) {
+				doubleMap.put(entry.getKey(), 5.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 5 < i && i <= len / 10 * 6) {
+				doubleMap.put(entry.getKey(), 6.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 6 < i && i <= len / 10 * 7) {
+				doubleMap.put(entry.getKey(), 7.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 7 < i && i <= len / 10 * 8) {
+				doubleMap.put(entry.getKey(), 8.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 8 < i && i <= len / 10 * 9) {
+				doubleMap.put(entry.getKey(), 9.0);
+				i++;
+				continue;
+			}
+			if (len / 10 * 9 < i) {
+				doubleMap.put(entry.getKey(), 10.0);
+				i++;
+				continue;
+			}
+		}
+		return doubleMap;
+	}
+	public void setnum(Map<Integer,Double> intMap) throws SQLException, ClassNotFoundException {
+		Connection con = design.connectDatabase();
+		Iterator<Map.Entry<Integer, Double>> iter = intMap.entrySet().iterator();
+		String insert = "insert zhengshu(id,e) values(?,?)";
+		PreparedStatement ps = con.prepareStatement(insert);
+		while (iter.hasNext()) {
+			Map.Entry<Integer,Double > entry = iter.next();
+			ps.setDouble(1, entry.getKey());
+			ps.setDouble(2, entry.getValue());
+			ps.execute();
+		}
+		con.close();
+	}
+
+	public static void main(String[] args) throws SQLException, ClassNotFoundException {
+		step3 three = new step3();
+		Map<Integer,Double> map1 = three.newList();
+//		for (Map.Entry<Integer,Double> entry : map1.entrySet())
+//			System.out.println(entry.getKey() + "   "+entry.getValue());
+		Map<Integer,Double> map2 = three.sortMap(map1);
+//		for (Map.Entry<Integer,Double> entry : map2.entrySet())
+//			System.out.println(entry.getKey() + "   "+entry.getValue());
+		Map<Integer,Double> map3 = three.intMap(map2);
+//		for (Map.Entry<Integer,Double> entry : map3.entrySet())
+//			System.out.println(entry.getKey() + "   "+entry.getValue());
+		three.setnum(map3);
 	}
 	
 }

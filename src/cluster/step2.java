@@ -1,368 +1,221 @@
 package cluster;
 
+import random.design;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;  
-import random.design; 
-/** 
- * K¾ùÖµ¾ÛÀàËã·¨ 
- */  
-public class step2 {  
-    private int k;// ·Ö³É¶àÉÙ´Ø  
-    private int m;// µü´ú´ÎÊı  
-    private int dataSetLength;// Êı¾İ¼¯ÔªËØ¸öÊı£¬¼´Êı¾İ¼¯µÄ³¤¶È  
-    private List<double[]> dataSet;// Êı¾İ¼¯Á´±í  
-    private List<double[]> center;// ÖĞĞÄÁ´±í  
-    private List<List<double[]>> cluster; // ´Ø  
-    private List<Double> jc;// Îó²îÆ½·½ºÍ£¬kÔ½½Ó½üdataSetLength£¬Îó²îÔ½Ğ¡  
-    private Random random;  
-  
-    /** 
-     * ÉèÖÃĞè·Ö×éµÄÔ­Ê¼Êı¾İ¼¯ 
-     *  
-     * @param dataSet 
-     */  
-  
-    public void setDataSet(List<double[]> dataSet) {  
-        this.dataSet = dataSet;  
-    }  
-  
-    /** 
-     * »ñÈ¡½á¹û·Ö×é 
-     *  
-     * @return ½á¹û¼¯ 
-     */  
-  
-    public List<List<double[]>> getCluster() {  
-        return cluster;  
-    }  
-  
-    /** 
-     * ¹¹Ôìº¯Êı£¬´«ÈëĞèÒª·Ö³ÉµÄ´ØÊıÁ¿ 
-     *  
-     * @param k 
-     *            ´ØÊıÁ¿,Èôk<=0Ê±£¬ÉèÖÃÎª1£¬Èôk´óÓÚÊı¾İÔ´µÄ³¤¶ÈÊ±£¬ÖÃÎªÊı¾İÔ´µÄ³¤¶È 
-     */  
-    public step2(int k) {  
-        if (k <= 0) {  
-            k = 1;  
-        }  
-        this.k = k;  
-    }  
-  
-    /** 
-     * ³õÊ¼»¯ 
-     */  
-    private void init() {  
-        m = 0;  
-        random = new Random();  
-//        if (dataSet == null || dataSet.size() == 0) {  
-//            initDataSet();  
-//        }  
-        dataSetLength = dataSet.size();  
-        if (k > dataSetLength) {  
-            k = dataSetLength;  
-        }  
-        center = initCenters();  
-        cluster = initCluster();  
-        jc = new ArrayList<Double>();  
-    }  
-  
-    /** 
-     * Èç¹ûµ÷ÓÃÕßÎ´³õÊ¼»¯Êı¾İ¼¯£¬Ôò²ÉÓÃÄÚ²¿²âÊÔÊı¾İ¼¯ 
-     */  
-//    private void initDataSet() {  
-//        dataSet = new ArrayList<double[]>();  
-//        // ÆäÖĞ{6,3}ÊÇÒ»ÑùµÄ£¬ËùÒÔ³¤¶ÈÎª15µÄÊı¾İ¼¯·Ö³É14´ØºÍ15´ØµÄÎó²î¶¼Îª0  
-//        double[][] dataSetArray = new double[][] { { 8, 2 }, { 3, 4 }, { 2, 5 },  
-//                { 4, 2 }, { 7, 3 }, { 6, 2 }, { 4, 7 }, { 6, 3 }, { 5, 3 },  
-//                { 6, 3 }, { 6, 9 }, { 1, 6 }, { 3, 9 }, { 4, 1 }, { 8, 6 } };  
-//  
-//        for (int i = 0; i < dataSetArray.length; i++) {  
-//            dataSet.add(dataSetArray[i]);  
-//        }  
-//    }  
-  
-    /** 
-     * ³õÊ¼»¯ÖĞĞÄÊı¾İÁ´±í£¬·Ö³É¶àÉÙ´Ø¾ÍÓĞ¶àÉÙ¸öÖĞĞÄµã 
-     *  
-     * @return ÖĞĞÄµã¼¯ 
-     */  
-    private List<double[]> initCenters() {  
-        List<double[]> center = new ArrayList<double[]>();  
-        int[] randoms = new int[k];  
-        boolean flag;  
-        int temp = random.nextInt(dataSetLength);  
-        randoms[0] = temp;  
-        for (int i = 1; i < k; i++) {  
-            flag = true;  
-            while (flag) {  
-                temp = random.nextInt(dataSetLength);  
-                int j = 0;  
-                // ²»Çå³şforÑ­»·µ¼ÖÂjÎŞ·¨¼Ó1  
-                // for(j=0;j<i;++j)  
-                // {  
-                // if(temp==randoms[j]);  
-                // {  
-                // break;  
-                // }  
-                // }  
-                while (j < i) {  
-                    if (temp == randoms[j]) {  
-                        break;  
-                    }  
-                    j++;  
-                }  
-                if (j == i) {  
-                    flag = false;  
-                }  
-            }  
-            randoms[i] = temp;  
-        }  
-  
-        // ²âÊÔËæ»úÊıÉú³ÉÇé¿ö  
-        // for(int i=0;i<k;i++)  
-        // {  
-        // System.out.println("test1:randoms["+i+"]="+randoms[i]);  
-        // }  
-  
-        // System.out.println();  
-        for (int i = 0; i < k; i++) {  
-            center.add(dataSet.get(randoms[i]));// Éú³É³õÊ¼»¯ÖĞĞÄÁ´±í  
-        }  
-        return center;  
-    }  
-  
-    /** 
-     * ³õÊ¼»¯´Ø¼¯ºÏ 
-     *  
-     * @return Ò»¸ö·ÖÎªk´ØµÄ¿ÕÊı¾İµÄ´Ø¼¯ºÏ 
-     */  
-    private List<List<double[]>> initCluster() {  
-        List<List<double[]>> cluster = new ArrayList<List<double[]>>();  
-        for (int i = 0; i < k; i++) {  
-            cluster.add(new ArrayList<double[]>());  
-        }  
-  
-        return cluster;  
-    }  
-  
-    /** 
-     * ¼ÆËãÁ½¸öµãÖ®¼äµÄ¾àÀë 
-     *  
-     * @param element 
-     *            µã1 
-     * @param center 
-     *            µã2 
-     * @return ¾àÀë 
-     */  
-    private double distance(double[] element, double[] center) {  
-        double distance = 0.0;
-        double sum = 0;
-        //System.out.println(element.length);
-       // System.out.println(center.length);
-        for(int i = 0; i<element.length; i++){
-        	 sum = sum + Math.pow((element[i]-center[i]), 2);	
+
+/**
+ * Created by lulu on 2017/12/18.
+ */
+
+//å–éšæœºæ•°
+public class step2 {
+    //è·å–ç›®æ ‡ä¼ä¸šåŠå…¶ç›¸ä¼¼ä¼ä¸šå¯¹äºæ‰€æœ‰æŒ‡æ ‡çš„å¹³å‡å€¼
+    public static double getAvg(int val) throws SQLException, ClassNotFoundException {
+        Connection con = design.connectDatabase();
+        Statement sm = con.createStatement();
+        ResultSet rs = sm.executeQuery(" SELECT * FROM newlishuqing2 WHERE id ="+ val );
+        List<Double> list = new ArrayList<Double>();
+        while (rs.next()){
+            list.add(rs.getDouble("E"));
+            list.add(rs.getDouble("F"));
+            list.add(rs.getDouble("G"));
+            list.add(rs.getDouble("H"));
+            list.add(rs.getDouble("I"));
+            list.add(rs.getDouble("J"));
+            list.add(rs.getDouble("K"));
+            list.add(rs.getDouble("L"));
+            list.add(rs.getDouble("M"));
+            list.add(rs.getDouble("N"));
+            list.add(rs.getDouble("O"));
+            list.add(rs.getDouble("P"));
+            list.add(rs.getDouble("Q"));
+            list.add(rs.getDouble("R"));
+            list.add(rs.getDouble("S"));
+            list.add(rs.getDouble("T"));
+            list.add(rs.getDouble("U"));
+            list.add(rs.getDouble("V"));
+            list.add(rs.getDouble("W"));
+            list.add(rs.getDouble("X"));
+            list.add(rs.getDouble("Y"));
+            list.add(rs.getDouble("Z"));
+            list.add(rs.getDouble("AA"));
+            list.add(rs.getDouble("AB"));
+            list.add(rs.getDouble("AC"));
+            list.add(rs.getDouble("AD"));
+            list.add(rs.getDouble("AE"));
+            list.add(rs.getDouble("AF"));
+            list.add(rs.getDouble("AG"));
+            list.add(rs.getDouble("AH"));
+            list.add(rs.getDouble("AI"));
+            list.add(rs.getDouble("AJ"));
+            list.add(rs.getDouble("AK"));
+            list.add(rs.getDouble("AL"));
+            list.add(rs.getDouble("AM"));
+            list.add(rs.getDouble("AN"));
+            list.add(rs.getDouble("AO"));
+            list.add(rs.getDouble("AP"));
+            list.add(rs.getDouble("AQ"));
+            list.add(rs.getDouble("AR"));
+            list.add(rs.getDouble("ASS"));
+            list.add(rs.getDouble("AT"));
+            list.add(rs.getDouble("AU"));
+            list.add(rs.getDouble("AV"));
+            list.add(rs.getDouble("AW"));
+            list.add(rs.getDouble("AX"));
+            list.add(rs.getDouble("AY"));
+            list.add(rs.getDouble("AZ"));
+            list.add(rs.getDouble("BA"));
+            list.add(rs.getDouble("BB"));
+            list.add(rs.getDouble("BC"));
+            list.add(rs.getDouble("BD"));
+            list.add(rs.getDouble("BE"));
+            list.add(rs.getDouble("BF"));
+            list.add(rs.getDouble("BG"));
+            list.add(rs.getDouble("BH"));
+            list.add(rs.getDouble("BI"));
+            list.add(rs.getDouble("BJ"));
+            list.add(rs.getDouble("BK"));
+            list.add(rs.getDouble("BL"));
+            list.add(rs.getDouble("BM"));
+            list.add(rs.getDouble("BN"));
+            list.add(rs.getDouble("BO"));
+            list.add(rs.getDouble("BP"));
+            list.add(rs.getDouble("BQ"));
+            list.add(rs.getDouble("BR"));
+           // list.add(rs.getDouble("BS"));
+            list.add(rs.getDouble("BT"));
+            list.add(rs.getDouble("BU"));
+            list.add(rs.getDouble("BV"));
+            list.add(rs.getDouble("BW"));
+            list.add(rs.getDouble("BX"));
+            list.add(rs.getDouble("BYY"));
+            list.add(rs.getDouble("BZ"));
+            list.add(rs.getDouble("CA"));
+            list.add(rs.getDouble("CB"));
+            list.add(rs.getDouble("CC"));
+            list.add(rs.getDouble("CD"));
+            list.add(rs.getDouble("CE"));
+            list.add(rs.getDouble("CF"));
+            list.add(rs.getDouble("CG"));
+            list.add(rs.getDouble("CH"));
+            list.add(rs.getDouble("CI"));
+            list.add(rs.getDouble("CJ"));
+            list.add(rs.getDouble("CK"));
+            list.add(rs.getDouble("CL"));
+            list.add(rs.getDouble("CM"));
+            list.add(rs.getDouble("CN"));
+            list.add(rs.getDouble("CO"));
+            list.add(rs.getDouble("CP"));
+            list.add(rs.getDouble("CQ"));
+            list.add(rs.getDouble("CR"));
+            list.add(rs.getDouble("CS"));
+            list.add(rs.getDouble("CT"));
+            list.add(rs.getDouble("CU"));
+            list.add(rs.getDouble("CV"));
+            list.add(rs.getDouble("CW"));
+            list.add(rs.getDouble("CX"));
+            list.add(rs.getDouble("CY"));
+            list.add(rs.getDouble("CZ"));
+            list.add(rs.getDouble("DA"));
+            list.add(rs.getDouble("DB"));
+            list.add(rs.getDouble("DC"));
+            list.add(rs.getDouble("DD"));
+            list.add(rs.getDouble("DE"));
+            list.add(rs.getDouble("DF"));
+            list.add(rs.getDouble("DG"));
+            list.add(rs.getDouble("DH"));
+            list.add(rs.getDouble("DI"));
+            list.add(rs.getDouble("DJ"));
+            list.add(rs.getDouble("DK"));
+            list.add(rs.getDouble("DL"));
+            list.add(rs.getDouble("DM"));
+            list.add(rs.getDouble("DN"));
+            list.add(rs.getDouble("DO"));
+            list.add(rs.getDouble("DP"));
+            list.add(rs.getDouble("DQ"));
+            list.add(rs.getDouble("DR"));
+            list.add(rs.getDouble("DS"));
+            list.add(rs.getDouble("DT"));
+            list.add(rs.getDouble("DU"));
+            list.add(rs.getDouble("DV"));
+            list.add(rs.getDouble("DW"));
+            list.add(rs.getDouble("DX"));
+            list.add(rs.getDouble("DY"));
+            list.add(rs.getDouble("DZ"));
+            list.add(rs.getDouble("EA"));
+            list.add(rs.getDouble("EB"));
+            list.add(rs.getDouble("EC"));
+            list.add(rs.getDouble("ED"));
+            list.add(rs.getDouble("EE"));
+            list.add(rs.getDouble("EF"));
+            list.add(rs.getDouble("EG"));
+            list.add(rs.getDouble("EH"));
+            list.add(rs.getDouble("EI"));
+            list.add(rs.getDouble("EJ"));
+            list.add(rs.getDouble("EK"));
+            list.add(rs.getDouble("EL"));
+            list.add(rs.getDouble("EM"));
+            list.add(rs.getDouble("EN"));
+            list.add(rs.getDouble("EO"));
+            list.add(rs.getDouble("EP"));
+            list.add(rs.getDouble("EQ"));
+            list.add(rs.getDouble("ER"));
+            list.add(rs.getDouble("ES"));
+            list.add(rs.getDouble("ET"));
+            list.add(rs.getDouble("EU"));
+            list.add(rs.getDouble("EV"));
         }
-  
-        distance = (double) Math.sqrt(sum);  
-  
-        return distance;  
-    }  
-  
-    /** 
-     * »ñÈ¡¾àÀë¼¯ºÏÖĞ×îĞ¡¾àÀëµÄÎ»ÖÃ 
-     *  
-     * @param distance 
-     *            ¾àÀëÊı×é 
-     * @return ×îĞ¡¾àÀëÔÚ¾àÀëÊı×éÖĞµÄÎ»ÖÃ 
-     */  
-    private int minDistance(double[] distance) {  
-    	double minDistance = distance[0];  
-        int minLocation = 0;  
-        for (int i = 1; i < distance.length; i++) {  
-            if (distance[i] < minDistance) {  
-                minDistance = distance[i];  
-                minLocation = i;  
-            } else if (distance[i] == minDistance) // Èç¹ûÏàµÈ£¬Ëæ»ú·µ»ØÒ»¸öÎ»ÖÃ  
-            {  
-                if (random.nextInt(10) < 5) {  
-                    minLocation = i;  
-                }  
-            }  
-        }  
-  
-        return minLocation;  
-    }  
-  
-    /** 
-     * ºËĞÄ£¬½«µ±Ç°ÔªËØ·Åµ½×îĞ¡¾àÀëÖĞĞÄÏà¹ØµÄ´ØÖĞ 
-     */  
-    private void clusterSet() {  
-    	double[] distance = new double[k];  
-        for (int i = 0; i < dataSetLength; i++) {  
-            for (int j = 0; j < k; j++) {  
-                distance[j] = distance(dataSet.get(i), center.get(j));  
-                // System.out.println("test2:"+"dataSet["+i+"],center["+j+"],distance="+distance[j]);  
-  
-            }  
-            int minLocation = minDistance(distance);  
-            // System.out.println("test3:"+"dataSet["+i+"],minLocation="+minLocation);  
-            // System.out.println();  
-  
-            cluster.get(minLocation).add(dataSet.get(i));// ºËĞÄ£¬½«µ±Ç°ÔªËØ·Åµ½×îĞ¡¾àÀëÖĞĞÄÏà¹ØµÄ´ØÖĞ  
-  
-        }  
-    }  
-  
-    /** 
-     * ÇóÁ½µãÎó²îÆ½·½µÄ·½·¨ 
-     *  
-     * @param element 
-     *            µã1 
-     * @param center 
-     *            µã2 
-     * @return Îó²îÆ½·½ 
-     */  
-    private double errorSquare(double[] element, double[] center) {  
-//    	double x = element[0] - center[0];  
-//    	double y = element[1] - center[1];  
-//  
-//    	double errSquare = x * x + y * y;  
-    	 double errSquare = 0;
-    	 
-         for(int i = 0; i<element.length; i++){
-        	 errSquare = errSquare + Math.pow(element[i]-center[i], 2);	
-         }
-   
-  
-        return errSquare;  
-    }  
-  
-    /** 
-     * ¼ÆËãÎó²îÆ½·½ºÍ×¼Ôòº¯Êı·½·¨ 
-     */  
-    private void countRule() {  
-    	double jcF = 0;  
-        for (int i = 0; i < cluster.size(); i++) {  
-            for (int j = 0; j < cluster.get(i).size(); j++) {  
-                jcF += errorSquare(cluster.get(i).get(j), center.get(i));  
-  
-            }  
-        }  
-        jc.add(jcF);  
-    }  
-  
-    /** 
-     * ÉèÖÃĞÂµÄ´ØÖĞĞÄ·½·¨ 
-     */  
-    private void setNewCenter() {  
-        for (int i = 0; i < k; i++) {  
-            int n = cluster.get(i).size();  
-            if (n != 0) {  
-            	double[] newCenter = new double[2923];  
-            	for(int k = 0;k < 2923;k++){
-                    for (int j = 0; j < n; j++) {  
-                    newCenter[k] += cluster.get(i).get(j)[k];  
-                    }
-                }  
-                // ÉèÖÃÒ»¸öÆ½¾ùÖµ  
-//                newCenter[0] = newCenter[0] / n;  
-//                newCenter[1] = newCenter[1] / n;  
-            	for(int t=0;t<2923;t++){
-            		 newCenter[t] = newCenter[t] / n;  
-            	}
-                center.set(i, newCenter);  
-            }  
-        }  
-    }  
-  
-    /** 
-     * ´òÓ¡Êı¾İ£¬²âÊÔÓÃ 
-     *  
-     * @param dataArray 
-     *            Êı¾İ¼¯ 
-     * @param dataArrayName 
-     *            Êı¾İ¼¯Ãû³Æ 
-     */  
-    public void printDataArray(List<double[]> dataArray,  String dataArrayName) {  
-        for (int i = 0; i < dataArray.size(); i++) { 
-        	
-            System.out.println("print:" + dataArrayName + "[" + i + "]={"  
-                    + dataArray.get(i)[0] + "," + dataArray.get(i)[1] + ","+ dataArray.get(i)[2]+"}");  
-        }  
-        System.out.println("===================================");  
-    }  
-  
-    /** 
-     * KmeansËã·¨ºËĞÄ¹ı³Ì·½·¨ 
-     */  
-    private void kmeans() {  
-        init();  
-        // printDataArray(dataSet,"initDataSet");  
-        // printDataArray(center,"initCenter");  
-  
-        // Ñ­»··Ö×é£¬Ö±µ½Îó²î²»±äÎªÖ¹  
-        while (true) {  
-            clusterSet();  
-            // for(int i=0;i<cluster.size();i++)  
-            // {  
-            // printDataArray(cluster.get(i),"cluster["+i+"]");  
-            // }  
-  
-            countRule();  
-    
-            // Îó²î²»±äÁË£¬·Ö×éÍê³É  
-            if (m != 0) {  
-                if (jc.get(m) - jc.get(m - 1) == 0) {  
-                    break;  
-                }  
-            }  
-  
-            setNewCenter();  
-            // printDataArray(center,"newCenter");  
-            m++;  
-            cluster.clear();  
-            cluster = initCluster();  
-        }  
-  
-        // System.out.println("note:the times of repeat:m="+m);//Êä³öµü´ú´ÎÊı  
-    }  
-  
-    /** 
-     * Ö´ĞĞËã·¨ 
-     */  
-    public void execute() {  
-        long startTime = System.currentTimeMillis();  
-        System.out.println("kmeans begins");  
-        kmeans();  
-        long endTime = System.currentTimeMillis();  
-        System.out.println("kmeans running time=" + (endTime - startTime)  
-                + "ms");  
-        System.out.println("kmeans ends");  
-        System.out.println();  
-    } 
-    
-        public  static void main(String[] args) throws ClassNotFoundException, SQLException {  
-            //³õÊ¼»¯Ò»¸öKmean¶ÔÏó£¬½«kÖÃÎª10  
-            step2 k=new step2(8); 
-            step1 kk=new step1();
-            
-            List<double[]> dataSet1=kk.getData();
-            List<double[]> dataSet = kk.transp(dataSet1);        
-            //ÉèÖÃÔ­Ê¼Êı¾İ¼¯  
-            k.setDataSet(dataSet);  
-            //Ö´ĞĞËã·¨  
-            k.execute();  
-            //µÃµ½¾ÛÀà½á¹û  
-            List<List<double[]>> cluster=k.getCluster();  
-            //²é¿´½á¹û  
-            for(int i=0;i<cluster.size();i++)  
-            {  
-                k.printDataArray(cluster.get(i), "cluster["+i+"]");  
-            }  
-              
-        }  
-      
-}  
+        double sum = 0;
+        double avg = 0;
+        for (int i = 0;i < list.size();i++){
+            sum += list.get(i);
+        }
+        avg = sum/list.size();
+        con.close();
+        return avg;
+    }
+
+//    //è·å–ç›®æ ‡ä¼ä¸šçš„ç›¸ä¼¼ä¼ä¸š
+//    public List<Integer> getComp() throws SQLException, ClassNotFoundException {
+//        Connection con = design.connectDatabase();
+//        Statement sm = con.createStatement();
+//        ResultSet rs = sm.executeQuery(" SELECT B FROM part3 WHERE A = 2035" );
+//        List<Integer> list = new ArrayList<>();
+//        while (rs.next()){
+//            list.add(rs.getInt("B"));
+//        }
+//        con.close();
+//        return list;
+//    }
+
+    //è·å–ç›®æ ‡ä¼ä¸šçš„ç›¸ä¼¼ä¼ä¸š
+    public List<Integer> getComp(int a) throws SQLException, ClassNotFoundException {
+        Connection con = design.connectDatabase();
+        Statement sm = con.createStatement();
+        ResultSet rs = sm.executeQuery(" SELECT B FROM part6 WHERE A = " + a );
+        List<Integer> list = new ArrayList<>();
+        while (rs.next()){
+            list.add(rs.getInt("B"));
+        }
+        con.close();
+        return list;
+    }
+
+    public List<Double> getAvgs(int a) throws SQLException, ClassNotFoundException {
+        List<Integer> listComp = getComp(a);
+        List<Double> listAvg = new ArrayList<>();
+        for (int i = 0;i < listComp.size();i++){
+            double avg = getAvg(listComp.get(i));
+            listAvg.add(avg);
+        }
+        return listAvg;
+    }
+
+}

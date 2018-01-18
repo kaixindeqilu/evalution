@@ -3,37 +3,39 @@ package cluster;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import random.design;
 
 //≈∑ Ωæ‡¿Î≤‚œ‡À∆∂»
 public class step7 {
-	double[] weight = {0.100,0.205,0.020,0.020,0.022,0.078,0.117,0.185,0.039,0.042,0.046,0.389,0.107,0.071,0.292,0.286,0.155,0.080,0.128,0.063,0.307,0.607,0.098,0.019,0.019,0.018,0.018,0.087};
+	//double[] weight = {0.100,0.205,0.020,0.020,0.022,0.078,0.117,0.185,0.039,0.042,0.046,0.389,0.107,0.071,0.292,0.286,0.155,0.080,0.128,0.063,0.307,0.607,0.098,0.019,0.019,0.018,0.018,0.087};
 	
 	//≈∑ Ωæ‡¿Î
 	public List<Map> oushiCountSim(List<List<Double>> lldde){
 		int count=0;
 		 List<Map> lm = new ArrayList<>();
-	 	 Map<Integer, Double> map = new TreeMap<Integer, Double>();
+	 	 Map<Integer, Double> map = new HashMap<>();
 		 double sum=0;
-	     
 	     double sim=0;
 	     for(int m=0;m<lldde.size();m++){
 	 	    for(int t=0;t<lldde.size();t++){
+//				if (m == t){
+//					map.put(t,2.0);
+//					continue;
+//				}
 	    	    for(int n=0;n<lldde.get(0).size();n++){
-			        sum = sum + Math.pow(lldde.get(m).get(n)-lldde.get(t).get(n), 2)*(1/weight[n]);		
+	    	    	//if (lldde.get(m).get(n)!=0&&lldde.get(t).get(n)!=0) {
+						sum = sum + Math.pow(lldde.get(m).get(n) - lldde.get(t).get(n), 2);
+					//}
 			    }
 	    	   // Map<Integer, Double> map = new TreeMap<Integer, Double>();
 			    sum =  Math.sqrt(sum);
-			    sim = 1/(1+sum);
+//				if (sum == 0){
+//					sim = 0;
+//				}else {
+					sim = 1 / (1 + sum);
+				//}
 			    map.put(t, sim);
 		   	    sum=0;	  
 		    }
@@ -84,7 +86,7 @@ public class step7 {
     
 	 public void LeadingSim(List<Map> lm) throws ClassNotFoundException, SQLException{
 			Connection co3 =  design.connectDatabase(); 
-			String insert = "INSERT 2013sim(A,B,sim) VALUES(?,?,?)";
+			String insert = "INSERT part2(A,B,sim) VALUES(?,?,?)";
 			//List<String> ss = getName();
 			int count=0;
 	    	int k=0;
